@@ -12,6 +12,7 @@
     "http-errors": "~1.6.3",
     "less-middleware": "~2.2.1",
     "morgan": "~1.9.1",
-    "pug": "2.0.0-beta11"
+    "pug": "2.0.0-beta11",
+    "whatsapp-web.js": "^1.15.1"
   }
 }
