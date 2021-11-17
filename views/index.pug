@@ -1,5 +1,21 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  main.h-100
+    div.row.row-no-gutters.h-100
+      div.col-xs-12.col-md-4.text-white.bg-dark
+        p SPVGA
+        p Sistema Politécnico para Vinculación de Grupos Academicos
+        img(src="/images/image.png")
+      div.col-xs-12.col-md-8
+        p Wenas
+        input#name(datatype=text minlength="10" required maxlength="40" size="10")
+        input#numberP(datatype=text minlength="10" required maxlength="12" size="10")
+        input#email(datatype=text minlength="10" required maxlength="60" size="10")
+
+
+      //div.col-xs-12.col-md-4.p-3
+      //  p SPVGA
+      //  p Sistema Politécnico para Vinculación de Grupos Academicos
+      //div.col-xs-12.col-md-8
+      //  p SPVGA
