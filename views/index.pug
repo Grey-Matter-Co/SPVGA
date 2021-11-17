@@ -2,13 +2,29 @@ extends layout
 
 block content
   main.h-100
-    div.row.row-no-gutters.h-100
-      div.col-xs-12.col-md-4.text-white.sidebar
+    .row.row-no-gutters.h-100
+      .col-xs-12.col-md-4.text-white.sidebar
         p SPVGA
         p Sistema Politécnico para Vinculación de Grupos Academicos
         img(src="/images/image.png")
-      div.col-xs-12.col-md-8.formulario
+      .col-xs-12.col-md-8.formulario
         form
+          .row.align-items-center.m-5
+            .col-xs-12.col-md-6
+              .form-floating.mb-3
+                input.form-control(type="text" name="name" placeholder="Nombre Para Identificación" required)
+                label Nombre
+              .form-floating.mb-3
+                input.form-control(type="tel" name="phone" placeholder="55-1234-5678" required pattern="[0-9]{3} [0-9]{3} [0-9]{4}" maxlength="12")
+                label Teléfono
+              .form-floating
+                input.form-control(type="email" name="email" placeholder="nombre@host.com")
+                label Correo
+            .col-xs-12.col-md-6
+              div
+                label.form-label Comprobante
+                input.form-control(type="file" name="inscription" required disabled)
+
           p Nombre completo:
           input#name(datatype=text minlength="10" required maxlength="40" size="10" value="")
           p Telefono:
