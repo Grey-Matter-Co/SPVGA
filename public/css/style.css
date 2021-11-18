@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
+
+body { font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; }
+
+a { color: #00B7FF; }
+
+img{
+    width: 60%;
+    position: center;
+}
+
+.formulario { background: linear-gradient(to bottom, white, #BEE0FF); }
+
+.sidebar { background-color: #0d6efd; }
+
+p { text-align: center; }

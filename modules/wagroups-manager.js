@@ -1,13 +1,21 @@
-const client = new Client({ puppeteer: { headless: false }, clientId: 'example' });
+require('dotenv').config();
+const qrcode = require('qrcode-terminal');
+const { Client } = require('whatsapp-web.js');
+
+let sessionCfg = JSON.parse(process.env.WW_SESSION || null);
+console.log(sessionCfg? "WAGroups: Session Found" : "WAGroups: Scan Next QR...");
+
+const client = new Client({ puppeteer: { args: [ '--no-sandbox', ], }, session: sessionCfg });
+
 client.initialize();
 
-client.on('qr', (qr) => {
-	// NOTE: This event will not be fired if a session is specified.
-	console.log('QR RECEIVED', qr);
-});
+client.on('qr', qr => qrcode.generate(qr, {small: true}));
 
-client.on('authenticated', () => {
+client.on('authenticated', (session) => {
 	console.log('AUTHENTICATED');
+	sessionCfg=session;
+	if (!process.env.WW_SESSION)
+		console.log("WW_SESSION="+JSON.stringify(session));
 });
 
 client.on('auth_failure', msg => {
@@ -54,26 +62,32 @@ client.on('message_ack', (msg, ack) => {
 		ACK_PLAYED: 4
 	*/
 	
-	if(ack == 3) {
+	if(ack === 3) {
 		// The message was read
 	}
 });
 
-client.on('group_join', (notification) => {
+client.on('group_join', async (notification) => {
 	// User has joined or been added to the group.
 	console.log('join', notification);
-	notification.reply('User joined.');
+	await notification.reply('User joined.');
 });
 
-client.on('group_leave', (notification) => {
+client.on('group_leave', async (notification) => {
 	// User has left or been kicked from the group.
 	console.log('leave', notification);
-	notification.reply('User left.');
+	await notification.reply('User left.');
 });
 
 client.on('group_update', (notification) => {
 	// Group picture, subject or description has been updated.
 	console.log('update', notification);
+});
+
+client.on('change_battery', (batteryInfo) => {
+	// Battery percentage for attached device has changed
+	const { battery, plugged } = batteryInfo;
+	console.log(`Battery: ${battery}% - Charging? ${plugged}`);
 });
 
 client.on('change_state', state => {
@@ -84,3 +98,4 @@ client.on('disconnected', (reason) => {
 	console.log('Client was logged out', reason);
 });
 
+module.exports = client
