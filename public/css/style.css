@@ -1,16 +1,78 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap');
-
-body { font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; }
-
-a { color: #00B7FF; }
-
-img{
-    width: 60%;
-    position: center;
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300&display=swap');
+@font-face {
+    font-family: Affirmative;
+    src: url(Affirmative.ttf);
 }
 
-.formulario { background: linear-gradient(to bottom, white, #BEE0FF); }
+body { font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
 
-.sidebar { background-color: #0d6efd; }
+img{
+    width: 50%;
 
-p { text-align: center; }
+}
+
+form {
+    padding-top: 30px;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+}
+
+.ipinimg{
+    position: relative;
+    width: 50%;
+    opacity: .5;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
+
+.formulario {
+    background-image: url("/img/spvga.png"), linear-gradient(0deg, rgba(208,239,255,1) 0%, rgba(255,255,255,1) 66%);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 35%, cover;
+}
+
+.img1{
+    position: relative;
+    width: 58%;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%)
+}
+
+.sidebar { background: rgb(0,96,162);
+    background: linear-gradient(0deg, rgba(0,96,162,1) 0%, rgba(0,112,255,1) 25%); }
+
+span{
+    position: relative;
+    vertical-align: middle;
+    top: 20%;
+}
+div p{
+    text-align: center;
+}
+
+.title {
+    font-family : Affirmative;
+    font-size: 65px;
+    margin-bottom: 1px;
+}
+.subtitle{
+    font-family: Roboto;
+    font-size: 18px;
+}
+
+input{
+    opacity: .7;
+}
+
+button{
+    padding: 10px;
+}

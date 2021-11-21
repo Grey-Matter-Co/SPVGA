@@ -4,16 +4,24 @@ block content
   main.h-100
     .row.row-no-gutters.h-100
       .col-xs-12.col-md-4.text-white.sidebar
-        p SPVGA
-        p Sistema Politécnico para Vinculación de Grupos Academicos
-        img(src="/img/image.png")
+        span
+          p.title SPVGA
+          p.subtitle Sistema Politécnico para Vinculación de Grupos Academicos
+          img.img1(src="/img/image.png")
       .col-xs-12.col-md-8.formulario
+
         form
           .row.align-items-center.m-5
             .col-xs-12.col-md-6
               .form-floating.mb-3
-                input.form-control(type="text" name="name" placeholder="Nombre Para Identificación" required)
-                label Nombre
+                input.form-control(type="text" name="fname" placeholder="Nombre Para Identificación" required)
+                label Nombres
+              .form-floating.mb-3
+                input.form-control(type="text" name="lname" placeholder="Apellido paterno Para Identificación" required)
+                label Apellido Paterno
+              .form-floating.mb-3
+                input.form-control(type="text" name="lname" placeholder="Apellido materno Para Identificación" required)
+                label Apellido Materno
               .form-floating.mb-3
                 input.form-control(type="tel" name="phone" placeholder="55-1234-5678" required pattern="[0-9]{3} [0-9]{3} [0-9]{4}" maxlength="12")
                 label Teléfono
@@ -24,10 +32,6 @@ block content
               div
                 label.form-label Comprobante
                 input.form-control(type="file" name="inscription" required disabled)
-
-          p Nombre completo:
-          input#name(datatype=text minlength="10" required maxlength="40" size="10" value="")
-          p Telefono:
-          input#numberP(datatype=text minlength="10" required maxlength="12" size="10" value="")
-          p Correo:
-          input#email(datatype=text minlength="10" required maxlength="60" size="10" value="")
+            .form-floating
+          .row.align-items-center.m-5
+            button.btn.btn-lg.btn-primary.w-100.mx-0.mb-2(type="button") Enviar
