@@ -73,43 +73,41 @@ function Pdf2TextClass(){
 } // end of class
 
 const spliter = "||"
-let reader = new FileReader();
-reader.onload = function() {
-	let arrayBuffer = this.result
-	let inscriptionData = {
-		institute: "",
-		school: "",
-		major: "",
-		lessons: [
-			{ academicgroup: "", class: "" }
-		],
-		period: ""
-	}
 
-	new  Pdf2TextClass().pdfToText(arrayBuffer, ()=>{}, text => {
-		console.info(text)
+/**
+ * @param file {File} PDF file to decode
+ * @returns {Promise<JSON>} Inscription structure wich contains institute, scholl, major, period and classes
+ */
+let inscriptionDecode = (file) => {
+	return new Promise(resolve => {
+		let reader = new FileReader();
+		reader.onload = function() {
+			let arrayBuffer = this.result
+			let inscriptionData = {}
 
-		inscriptionData.institute = "INSTITUTO POLITECNICO NACIONAL"
-		inscriptionData.school = text.match(rgxSchool)[0].replace("INSTITUTO POLITECNICO NACIONAL", "").slice(0, -1)
-		inscriptionData.major = text.match(rgxMajor)[0].replace("Licenciatura: ", "").slice(0, -1)
-		inscriptionData.period = text.match(rgxPeriod)[0].replace("Periodo", "")
-		inscriptionData.period = `${inscriptionData.period.slice(0, -1)}-${pinscriptionData.period.slice(-1)}`
+			new Pdf2TextClass().pdfToText(arrayBuffer, ()=>{}, text => {
+				console.info(text)
 
-		let i=0;
-		for(let _grpClass of text.matchAll(rgxGrpClassTeacher)) {
-			let grpClass = _grpClass[0]
-			let grp = grpClass.slice(0, grpClass.search(" "))
-			let classTeach = grpClass.slice(grpClass.search(" ")).replace("SIN ASIGNAR", "")
+				inscriptionData.institute = "INSTITUTO POLITECNICO NACIONAL"
+				inscriptionData.school = text.match(rgxSchool)[0].replace("INSTITUTO POLITECNICO NACIONAL", "").slice(0, -1)
+				inscriptionData.major = text.match(rgxMajor)[0].replace("Licenciatura: ", "").slice(0, -1)
+				inscriptionData.period = text.match(rgxPeriod)[0].replace("Periodo", "")
+				inscriptionData.period = `${inscriptionData.period.slice(0, -1)}-${pinscriptionData.period.slice(-1)}`
 
-			inscriptionData.lessons[i] = { academicgroup: grp, class: classTeach }
-			i++;
+				let i=0;
+				for(let _grpClass of text.matchAll(rgxGrpClassTeacher)) {
+					let grpClass = _grpClass[0],
+						grp = grpClass.slice(0, grpClass.search(" ")),
+						classTeach = grpClass.slice(grpClass.search(" ")).replace("SIN ASIGNAR", "")
+
+					inscriptionData.class[i] = { classgroup: grp, classname: classTeach }
+					i++;
+				}
+				resolve(inscriptionData)
+			})
+			reader.readAsArrayBuffer(file);
 		}
-
-
 	})
-	console.log(inscriptionData)
-
-	return inscriptionData
 }
 
 const dan = "5548258856"
@@ -117,11 +115,11 @@ const gus = "5610338516"
 const ed  = "5534315125"
 const url = "/signup"
 let data = { name: "Gustavo Peduzzi", phone: "5610338516", email: "gpeduzzia1600@alumno.ipn.mx" }
-function signup(form) {
+async function signup(form) {
 	let name = form.name,
 		phone = form.phone,
 		email = form.email,
-		inscription = form.inscription.files[0]
+		inscription = await inscriptionDecode(form.inscription.files[0])
 
 
 	reader.readAsArrayBuffer(this.files[0]);

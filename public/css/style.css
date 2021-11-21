@@ -5,30 +5,59 @@
     src: url(Affirmative.ttf);
 }
 
-body { font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+body {
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
 }
 
-img{
-    width: 50%;
-
+/* Medium devices (tablets, 768px and bottom) */
+@media (max-width: 767px) {
+    .position-btn-down { position: relative; }
+    .position_top{ top: 40% }
+    .h-form { height: auto }
+    form {
+        position: relative;
+        margin-top: 10px;
+    }
+    span{
+        position: relative;
+        vertical-align: middle;
+        top: 0;
+    }
+    .support{font-size: 2.5rem}
 }
-
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+    .position-btn-down { position: absolute; }
+    .position_top{ top: 45%}
+    .h-form { height: 100vh }
+    form {
+        padding-top: 40px;
+        position: relative;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+    span{
+        position: relative;
+        vertical-align: middle;
+        top: 20%;
+    }
+    .support{font-size: 2.5rem; margin: 0}
+}
 form {
-    padding-top: 30px;
+    padding-top: 40px;
     position: relative;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    z-index: 2;
 }
 
-.ipinimg{
-    position: relative;
-    width: 50%;
-    opacity: .5;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+#btn-bot {
+    position: absolute;
+    display: inline;
+    float: right;
+    right: 0;
     z-index: 1;
 }
 
@@ -41,7 +70,7 @@ form {
 
 .img1{
     position: relative;
-    width: 58%;
+    width: 60%;
     top: 35%;
     left: 50%;
     transform: translate(-50%, -50%)
@@ -75,4 +104,9 @@ input{
 
 button{
     padding: 10px;
+}
+
+.part2{
+    background: rgb(0,96,162);
+    background: linear-gradient(180deg, rgba(0,96,162,1) 0%, rgba(0,65,110,1) 100%);
 }

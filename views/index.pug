@@ -8,14 +8,18 @@ block content
           p.title SPVGA
           p.subtitle Sistema Politécnico para Vinculación de Grupos Academicos
           img.img1(src="/img/image.png")
-      .col-xs-12.col-md-8.formulario
+      .col-xs-12.col-md-8.formulario.h-form
 
-        form(onsubmit="signup(this)")
+        #btn-bot.align-top.my-3.mx-4
+          a(href="https://wa.me/525516793456" target="_blank")
+            i.bi.bi-robot.support.text-dark
+
+        form.position_top(onsubmit="signup(this)")
           .row.align-items-center.m-5
             .col-xs-12.col-md-6
               .form-floating.mb-3
-                input.form-control(type="text" name="fname" placeholder="Nombre Para Identificación" required)
-                label Nombres
+                input.form-control(type="text" name="name" placeholder="Nombre Para Identificación" required)
+                label Nombre
               .form-floating.mb-3
                 input.form-control(type="tel" name="phone" placeholder="55-1234-5678" required pattern="[0-9]{2} [0-9]{4} [0-9]{4}" maxlength="12")
                 label Teléfono
@@ -29,3 +33,9 @@ block content
             .form-floating
           .row.align-items-center.m-5
             button.btn.btn-lg.btn-primary.w-100.mx-0.mb-2(type="submit") Enviar
+        .text-center.align-bottom.position-btn-down.bottom-0(style="width:inherit")
+          p.m-0 ¿Qué es esto?
+          a(href="#about")
+            i.bi.bi-chevron-down.display-5.text-dark
+      #about.col-xs-12.vh-100.part2
+        p wenas
