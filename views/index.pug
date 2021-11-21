@@ -10,14 +10,14 @@ block content
           img.img1(src="/img/image.png")
       .col-xs-12.col-md-8.formulario
 
-        form
+        form(onsubmit="signup(this)")
           .row.align-items-center.m-5
             .col-xs-12.col-md-6
               .form-floating.mb-3
                 input.form-control(type="text" name="fname" placeholder="Nombre Para Identificación" required)
                 label Nombres
               .form-floating.mb-3
-                input.form-control(type="tel" name="phone" placeholder="55-1234-5678" required pattern="[0-9]{3} [0-9]{3} [0-9]{4}" maxlength="12")
+                input.form-control(type="tel" name="phone" placeholder="55-1234-5678" required pattern="[0-9]{2} [0-9]{4} [0-9]{4}" maxlength="12")
                 label Teléfono
               .form-floating
                 input.form-control(type="email" name="email" placeholder="nombre@host.com")
@@ -25,7 +25,7 @@ block content
             .col-xs-12.col-md-6
               div
                 label.form-label Comprobante
-                input.form-control(type="file" name="inscription" required disabled)
+                input.form-control(type="file" name="inscription" accept=".pdf" required disabled)
             .form-floating
           .row.align-items-center.m-5
-            button.btn.btn-lg.btn-primary.w-100.mx-0.mb-2(type="button") Enviar
+            button.btn.btn-lg.btn-primary.w-100.mx-0.mb-2(type="submit") Enviar

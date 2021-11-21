@@ -15,6 +15,7 @@ router.get('/hola', (req, res) => {
 	res.render('index', { title: 'Hola Gustavo' });
 });
 
+
 router.put("/signup", (req, res) => {
 	let name    = req.body.name,
 		phone   = `521${req.body.phone}`,
