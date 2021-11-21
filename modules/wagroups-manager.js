@@ -3,7 +3,7 @@ const qrcode = require('qrcode-terminal');
 const { Client } = require('whatsapp-web.js');
 const MessagesAdapter = require('./MessagesAdapter')
 
-const TAG = "Pic2Sticker"
+const TAG = "WAGroups"
 const log = data => console.log(`${TAG}: ${data}`)
 const error = data => console.error(`${TAG}: ${data}`)
 const info = data => console.info(`${TAG}: ${data}`)

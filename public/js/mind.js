@@ -36,16 +36,10 @@ function Pdf2TextClass(){
 							let last_block = null;
 							for( let k = 0; k < textContent.items.length; k++ ){
 								let block = textContent.items[k];
-								console.log(`text found: ${block.str}`)
-								if (!block.str.at(-1))
-									continue
-								if( last_block != null && last_block.str.at(-1) !== ' '){
-									console.log(`|`)
+								console.log(`text found: _${block.str}_`)
+								if (!block.str.at(-1) || block.str.at(-1)===" ") {
 									page_text += "|"
-									if( block.x < last_block.x )
-										page_text += "\r\n";
-									else if ( last_block.y !== block.y && ( last_block.str.match(/^(\s?[a-zA-Z])$|^(.+\s[a-zA-Z])$/) == null ))
-										page_text += '°';
+									console.log(`|`)
 								}
 								page_text += block.str;
 								last_block = block;
@@ -72,7 +66,7 @@ function Pdf2TextClass(){
 	}; // end of pdfToText()
 } // end of class
 
-const spliter = "||"
+const spliter = "|"
 
 /**
  * @param file {File} PDF file to decode
@@ -105,9 +99,12 @@ let inscriptionDecode = (file) => {
 				}
 				resolve(inscriptionData)
 			})
-			reader.readAsArrayBuffer(file);
 		}
+		reader.readAsArrayBuffer(file);
 	})
+	console.log(inscriptionData)
+
+	return inscriptionData
 }
 
 const dan = "5548258856"
@@ -116,17 +113,16 @@ const ed  = "5534315125"
 const url = "/signup"
 let data = { name: "Gustavo Peduzzi", phone: "5610338516", email: "gpeduzzia1600@alumno.ipn.mx" }
 async function signup(form) {
-	let name = form.name,
-		phone = form.phone,
-		email = form.email,
+	let name = form.name.value,
+		phone = form.phone.value,
+		email = form.email.value,
 		inscription = await inscriptionDecode(form.inscription.files[0])
 
-
-	reader.readAsArrayBuffer(this.files[0]);
+	console.log(inscription)
 
 
 	// Opciones por defecto estan marcadas con un *
-	return fetch(url, {
+	fetch(url, {
 		method: 'PUT', // *GET, POST, PUT, DELETE, etc.
 		mode: 'cors', // no-cors, *cors, same-origin
 		cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
@@ -143,22 +139,25 @@ async function signup(form) {
 	.then( console.log )
 	return false
 }
-let form = document.querySelector("form");
-form.addEventListener('keyup', () => {
+
+document.querySelector("form").addEventListener('keyup', (ev) => {
+	let form = ev.target.form
 	let isNotEmpty = true
-	for (const formElement of form)
-		if (formElement.type !== "file" && formElement.name)
-			if (!formElement.value) {
+	let isNotFillingOptionalInp = true
+	for (const formElement of form) {
+		if (formElement.type !== "file" && formElement.name && formElement.required)
+			if (!formElement.value)
 				isNotEmpty = false;
-				break;
-			}
-	form.elements.namedItem("inscription").disabled = !isNotEmpty
+		if (formElement === document.activeElement && !formElement.required)
+			isNotFillingOptionalInp = false
+	}
+
+
+	form.inscription.disabled = !form.checkValidity()
+
+	if (!form.checkValidity() && isNotEmpty && isNotFillingOptionalInp)
+		form.reportValidity()
 })
 
-form.inscription.addEventListener('change', function() {
-	console.log(this.files[0])
-	const spliter = "||"
-
-	reader.readAsArrayBuffer(this.files[0]);
-	
-}, false);
+document.querySelector("[type='file']").addEventListener('change', ev =>
+	ev.target.form.onsubmit());
