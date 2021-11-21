@@ -6,6 +6,7 @@ let sessionCfg = JSON.parse(process.env.WW_SESSION || null);
 console.log(sessionCfg? "WAGroups: Session Found" : "WAGroups: Scan Next QR...");
 
 const client = new Client({ puppeteer: { args: [ '--no-sandbox', ], }, session: sessionCfg });
+const MessagesAdapter = require('./modules/MessagesAdapter')
 
 client.initialize();
 
@@ -27,9 +28,9 @@ client.on('ready', () => {
 	console.log('READY');
 });
 
-client.on('message', async msg => {
-	console.log('MESSAGE RECEIVED', msg);
-});
+client.on('message', msg => {
+	answerer(msg)
+})
 
 client.on('message_create', (msg) => {
 	// Fired on all message creations, including your own
@@ -97,5 +98,10 @@ client.on('change_state', state => {
 client.on('disconnected', (reason) => {
 	console.log('Client was logged out', reason);
 });
+
+function answerer(msg) {
+	let msgText = String(msg.body.toLowerCase())
+	msg.reply(MessagesAdapter.findAnswer(msgText))
+}
 
 module.exports = client
