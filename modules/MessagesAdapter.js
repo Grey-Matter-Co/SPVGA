@@ -1,5 +1,5 @@
 const fs = require("fs");
-knowledge = require('../source/knowledge.json')
+knowledge = require('../knowledge.json')
 
 /**
  * @param {String} str1 First string to compare

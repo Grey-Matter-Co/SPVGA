@@ -6,7 +6,7 @@ let sessionCfg = JSON.parse(process.env.WW_SESSION || null);
 console.log(sessionCfg? "WAGroups: Session Found" : "WAGroups: Scan Next QR...");
 
 const client = new Client({ puppeteer: { args: [ '--no-sandbox', ], }, session: sessionCfg });
-const MessagesAdapter = require('./modules/MessagesAdapter')
+const MessagesAdapter = require('./MessagesAdapter.js');
 
 client.initialize();
 
