@@ -5,8 +5,8 @@ block content
     .row.row-no-gutters.h-100
       .col-xs-12.col-md-4.text-white.sidebar
         span
-          p.title SPVGA
-          p.subtitle Sistema Politécnico para Vinculación de Grupos Academicos
+          p.text-center.title SPVGA
+          p.text-center.subtitle Sistema Politécnico para Vinculación de Grupos Académicos
           img.img1(src="/img/image.png")
       .col-xs-12.col-md-8.formulario.h-form
 
@@ -36,8 +36,22 @@ block content
             //.row.align-items-center.m-5
               button.btn.btn-lg.btn-primary.w-100.mx-0.mb-2(type="submit") Enviar
         .text-center.align-bottom.position-btn-down.bottom-0(style="width:inherit")
-          p.m-0 ¿Qué es esto?
+          p.text-center.m-0 ¿Qué es esto?
           a(href="#about")
             i.bi.bi-chevron-down.display-5.text-dark
-      #about.col-xs-12.vh-100.part2
-        p wenas
+    #about.row.h-100.bg-primary.m-0.w-100
+      .col-md-4.d1
+        img.img2.w-100.h-100(src="/img/img2.png")
+      .col-md-8.d1
+        p.text-white.h4.text2 Una aplicacion web, que permite a los estudiantes del IPN, encontrar y registrarse en grupos de Whatsapp, que corresponden a la tira de materias registradas en su comporbante de inscripción del semestre encurso, con el fin de facilitar la comunicación entre los estudiantes a lo largo del periodo escolar.
+      .col-12.social.d2
+        .d-flex.justify-content-around.m-2
+          .p2.text-center
+            a.text-decoration-none(href="https://www.ipn.mx/" target="_blank")
+              img#lipn(src="/img/ipn.png")
+              p.icons.h6.text-black IPN
+          .p2.text-center
+            a.text-decoration-none(href="https://github.com/Grey-Matter-Co" target="_blank")
+              i.bi.bi-github.h2
+              p.icons.h6.text-black GitHub
+
