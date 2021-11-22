@@ -10,16 +10,16 @@ function editDistance(str1, str2) {
     str1 = str1.toLowerCase();
     str2 = str2.toLowerCase();
 
-    let costs = new Array();
+    let costs = [];
     for (let i=0; i<=str1.length; i++) {
         let lastValue = i;
         for (let j = 0; j <= str2.length; j++) {
-            if (i == 0)
+            if (i === 0)
                 costs[j] = j;
             else {
                 if (j > 0) {
                     let newValue = costs[j - 1];
-                    if (str1.charAt(i - 1) != str2.charAt(j - 1))
+                    if (str1.charAt(i - 1) !== str2.charAt(j - 1))
                         newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
                     costs[j-1] = lastValue;
                     lastValue = newValue;

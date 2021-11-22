@@ -1,146 +1,125 @@
-let PDFJS = window['pdfjs-dist/build/pdf']; // Loaded via <script> tag, create shortcut to access PDF.js exports.
-PDFJS.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js'; // The workerSrc property shall be specified.
-
-const rgxGrpClassTeacher = /\d[\w]{2}[\d]{1,2} [A-ZÀ-Ý .]+/g
-// @WARNING: recortar al final una E
-const rgxMajor = /Licenciatura: [A-ZÀ-Ý .]+/
-// @WARNING: recortar al final una C
-const rgxSchool = /INSTITUTO POLITECNICO NACIONAL[A-ZÀ-Ý .]+/
-const rgxPeriod = /[\d]{5}Periodo/i
-
-function Pdf2TextClass(){
-	let self = this;
-	this.complete = 0;
-	
-	/**
-	 * @param data ArrayBuffer of the pdf file content
-	 * @param callbackPageDone To inform the progress each time when a page is finished. The callback function's input parameters are:
-	 *        1) number of pages done;
-	 *        2) total number of pages in file.
-	 * @param callbackAllDone The input parameter of callback function is the result of extracted text from pdf file.
-	 */
-	this.pdfToText = function(data, callbackPageDone, callbackAllDone){
-		console.assert( data  instanceof ArrayBuffer  || typeof data == 'string' );
-		PDFJS.getDocument( data ).promise.then( function(pdf) {
-			//let div = document.getElementById('viewer');
-			
-			let total = pdf.numPages;
-			callbackPageDone( 0, total );
-			let layers = {};
-			for (let i = 1; i <= total; i++){
-				pdf.getPage(i).then( function(page){
-					let n = page.pageNumber;
-					page.getTextContent().then( function(textContent){
-						if( null != textContent.items ){
-							let page_text = "";
-							let last_block = null;
-							for( let k = 0; k < textContent.items.length; k++ ){
-								let block = textContent.items[k];
-								console.log(`text found: _${block.str}_`)
-								if (!block.str.at(-1) || block.str.at(-1)===" ") {
-									page_text += "|"
-									console.log(`|`)
-								}
-								page_text += block.str;
-								last_block = block;
-							}
-							
-							console.log("page " + n + " finished."); //" content: \n" + page_text);
-							layers[n] =  page_text + "\n\n";
-						}
-						++ self.complete;
-						callbackPageDone( self.complete, total );
-						if (self.complete === total){
-							window.setTimeout(function(){
-								let full_text = "";
-								let num_pages = Object.keys(layers).length;
-								for( let j = 1; j <= num_pages; j++)
-									full_text += layers[j] ;
-								callbackAllDone(full_text);
-							}, 1000);
-						}
-					}); // end  of page.getTextContent().then
-				}); // end of page.then
-			} // of for
-		});
-	}; // end of pdfToText()
-} // end of class
-
-const spliter = "|"
+const rgxTxt = /[0-9a-z]/i
+const rgxSchedule = /^[\d]{2}:[\d]{2} -[\d]{2}:[\d]{2}$/ //=>XX:XX -XX:XX
 
 /**
  * @param file {File} PDF file to decode
  * @returns {Promise<JSON>} Inscription structure wich contains institute, scholl, major, period and classes
  */
-let inscriptionDecode = (file) => {
-	return new Promise(resolve => {
-		let reader = new FileReader();
-		reader.onload = function() {
-			let arrayBuffer = this.result
-			let inscriptionData = {}
+let decode = (file) => new Promise((resolve, reject) => {
+	let reader = new FileReader();
+	reader.onload = function() {
+		let arrayBuffer = this.result
+		let inscriptionData = {student: {}, class: []}
 
-			new Pdf2TextClass().pdfToText(arrayBuffer, ()=>{}, text => {
-				console.info(text)
+		new Pdf2TextClass().pdfToText(arrayBuffer, ()=>{}, text => {
+			let data = text
+				.split(new Pdf2TextClass().spliter)										// Splits using the Inscription Decoder's spliter
+				.map(elem => {return elem.replace(/\s+$/, '').replace(/^\s+/, '');})	// Trims beginning and ending space
+				.filter(elem => elem)													// Removes any empty field
 
-				inscriptionData.institute = "INSTITUTO POLITECNICO NACIONAL"
-				inscriptionData.school = text.match(rgxSchool)[0].replace("INSTITUTO POLITECNICO NACIONAL", "").slice(0, -1)
-				inscriptionData.major = text.match(rgxMajor)[0].replace("Licenciatura: ", "").slice(0, -1)
-				inscriptionData.period = text.match(rgxPeriod)[0].replace("Periodo", "")
-				inscriptionData.period = `${inscriptionData.period.slice(0, -1)}-${pinscriptionData.period.slice(-1)}`
+			if (data[0] !== "INSTITUTO POLITECNICO NACIONAL")
+				reject("El archivo no corresponde a un Comprobante de inscripción del IPN")
+			else {
+				inscriptionData.institute = data.shift()
+				inscriptionData.school = data.shift()
+				while (data.shift() !== "Nombre:") {}
+				inscriptionData.student.id = data.shift()
+				while (data.shift() !== "Licenciatura:") {}
+				inscriptionData.career = data.shift()
+				while (data.shift() !== "Especialidad") {}
+				inscriptionData.major = data.shift()
+				inscriptionData.student.name = data.shift()
+				while (data.shift() !== "Salón") { }
 
-				let i=0;
-				for(let _grpClass of text.matchAll(rgxGrpClassTeacher)) {
-					let grpClass = _grpClass[0],
-						grp = grpClass.slice(0, grpClass.search(" ")),
-						classTeach = grpClass.slice(grpClass.search(" ")).replace("SIN ASIGNAR", "")
+				let isValidField = true,
+					i = 0
+				while (isValidField) {
+					let classGroup	= data.shift(),
+						className	 = data.shift(),
+						classTeacher	= data.shift(),
+						classSchedule = "",
+						isSchedule	= true,
+						tmp
 
-					inscriptionData.class[i] = { classgroup: grp, classname: classTeach }
-					i++;
+					while (isSchedule) {
+						tmp = data[0]
+						isSchedule = rgxSchedule.test(tmp)
+						if (isSchedule)
+							classSchedule += data.shift()+"\n"
+					}
+
+					inscriptionData.class[i] = {
+						classgroup: classGroup,
+						classname: className,
+						classteacher: classTeacher,
+						classschedule: classSchedule
+					}
+					i++
+
+					tmp = data[0]
+					isValidField = !tmp.startsWith("IR")
 				}
-				resolve(inscriptionData)
-			})
-		}
-		reader.readAsArrayBuffer(file);
-	})
-	console.log(inscriptionData)
+				data.shift()
+				let tmp = data.shift().replace(" Periodo:", "")
+				inscriptionData.period = tmp.replace(/\d$/, "-"+tmp.at(-1))
+			}
+			resolve(inscriptionData)
+		})
+	}
+	reader.readAsArrayBuffer(file);
+})
 
-	return inscriptionData
-}
-
-const dan = "5548258856"
-const gus = "5610338516"
-const ed  = "5534315125"
 const url = "/signup"
-let data = { name: "Gustavo Peduzzi", phone: "5610338516", email: "gpeduzzia1600@alumno.ipn.mx" }
 async function signup(form) {
-	let name = form.name.value,
-		phone = form.phone.value,
-		email = form.email.value,
-		inscription = await inscriptionDecode(form.inscription.files[0])
+	form.disabled = true
+	let name  = form.name.value.replace(/\s+$/, '').replace(/^\s+/, ''),
+		phone = form.phone.value.replace(/\s+$/, '').replace(/^\s+/, ''),
+		email = form.email.value.replace(/\s+$/, '').replace(/^\s+/, '')
 
-	console.log(inscription)
+	decode(form.inscription.files[0])
+		.then(inscription => {
+			if (name.toUpperCase() !== inscription.student.name)
+				return Promise.reject(`El comprobante no corresponde a ${name}. Por favor, utiliza un comprobante a tu nombre`)
 
+			inscription.student.phone = phone
+			inscription.student.email = email
+			inscription.student.name  = name
 
-	// Opciones por defecto estan marcadas con un *
-	fetch(url, {
-		method: 'PUT', // *GET, POST, PUT, DELETE, etc.
-		mode: 'cors', // no-cors, *cors, same-origin
-		cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
-		credentials: 'same-origin', // include, *same-origin, omit
-		headers: {
-			'Content-Type': 'application/json'
-			// 'Content-Type': 'application/x-www-form-urlencoded',
-		},
-		redirect: 'follow', // manual, *follow, error
-		referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-		body: JSON.stringify(data) // body data type must match "Content-Type" header
-	})
-	.then(response => response.json())// parses JSON response into native JavaScript objects
-	.then( console.log )
-	return false
+			console.log(JSON.stringify(inscription, null, 4))
+
+			// Opciones por defecto estan marcadas con un *
+			fetch(url, {
+				method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+				mode: 'cors', // no-cors, *cors, same-origin
+				cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
+				credentials: 'same-origin', // include, *same-origin, omit
+				headers: {
+					'Content-Type': 'application/json'
+					// 'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				redirect: 'follow', // manual, *follow, error
+				referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+				body: JSON.stringify(inscription) // body data type must match "Content-Type" header
+			})
+			.then(response => response.json())// parses JSON response into native JavaScript objects
+			.then( console.log )
+
+		})
+		.catch(err => {
+			alert(err)
+			form.inscription.value = ""
+		})
+		.finally(_ => {
+			form.disabled = false
+		})
 }
 
-document.querySelector("form").addEventListener('keyup', (ev) => {
+document.forms[0].onsubmit = ev => {
+	ev.preventDefault();
+	signup(ev.target)
+}
+
+document.forms[0].addEventListener('keyup', (ev) => {
 	let form = ev.target.form
 	let isNotEmpty = true
 	let isNotFillingOptionalInp = true
@@ -152,7 +131,6 @@ document.querySelector("form").addEventListener('keyup', (ev) => {
 			isNotFillingOptionalInp = false
 	}
 
-
 	form.inscription.disabled = !form.checkValidity()
 
 	if (!form.checkValidity() && isNotEmpty && isNotFillingOptionalInp)
@@ -160,4 +138,5 @@ document.querySelector("form").addEventListener('keyup', (ev) => {
 })
 
 document.querySelector("[type='file']").addEventListener('change', ev =>
-	ev.target.form.onsubmit());
+	document.querySelector('#btnSubmit').click()
+);
