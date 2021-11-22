@@ -19,13 +19,13 @@ block content
               .col-xs-12.col-md-6
                 .form-floating.mb-3
                   //[a-zA-Z]+ [a-zA-Z]+ [a-zA-Z]+[ ]?[a-zA-Z]+[ ]?[a-zA-Z]+[ ]?[a-zA-Z]+[ ]?[a-zA-Z]+[ ]?
-                  input.form-control(type="text" name="name" placeholder="" required pattern="([a-zA-Z]+ ){2}([a-zA-Z]+[ ]?){1,5}" title="Incluye tu nombre completo empezando por tu apellido paterno sin tíldes")
+                  input.form-control(type="text" name="name" placeholder=" " required pattern="([a-zA-Z]+ ){2}([a-zA-Z]+[ ]?){1,5}" title="Incluye tu nombre completo empezando por tu apellido paterno sin tíldes")
                   label Nombre Completo
                 .form-floating.mb-3
-                  input.form-control(type="tel" name="phone" placeholder="" required pattern="[0-9]{10}" title="Incluye 10 digitos en el número telefónico")
+                  input.form-control(type="tel" name="phone" placeholder=" " required pattern="[0-9]{10}" title="Incluye 10 digitos en el número telefónico")
                   label Teléfono
                 .form-floating
-                  input.form-control(type="email" name="email" placeholder="")
+                  input.form-control(type="email" name="email" placeholder=" ")
                   label Correo
               .col-xs-12.col-md-6
                 div

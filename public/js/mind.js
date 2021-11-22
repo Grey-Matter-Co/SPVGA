@@ -1,5 +1,7 @@
 const rgxTxt = /[0-9a-z]/i
 const rgxSchedule = /^[\d]{2}:[\d]{2} -[\d]{2}:[\d]{2}$/ //=>XX:XX -XX:XX
+let now = new Date()
+const periodBreaker = new Date(`${now.getFullYear()}-06-23 00:00:00`)
 
 /**
  * @param file {File} PDF file to decode
@@ -80,6 +82,12 @@ async function signup(form) {
 		.then(inscription => {
 			if (name.toUpperCase() !== inscription.student.name)
 				return Promise.reject(`El comprobante no corresponde a ${name}. Por favor, utiliza un comprobante a tu nombre`)
+			now = new Date()
+
+			console.log(`${inscription.period.substr(0,4)} !== ${now.getFullYear()+(now<periodBreaker?0:1)} && ${inscription.period.substr(-1)}!==${now<periodBreaker?"2":"1"}`)
+
+			if (parseInt(inscription.period.substr(0,4)) !== now.getFullYear()+(now<periodBreaker?0:1) || inscription.period.substr(-1)!==(now<periodBreaker?"2":"1"))
+				return Promise.reject("El comprobante no corresponde al periodo en curso")
 
 			inscription.student.phone = phone
 			inscription.student.email = email
