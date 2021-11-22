@@ -39,8 +39,8 @@ router.put("/signup", async (req, res) => {
 							waGrpManager.getChatById(classRes._idwa)
 								.then(resolve)
 						// There's not group created
-						else                                                                            //  self-adding at group
-							waGrpManager.createGroup(`${query.group}-${query.name}`.substring(0,25), [waGrpManager.info.wid._serialized])
+						else                                                                                                                //  self-adding at group
+							waGrpManager.createGroup(`${query.group}-${abbreviate(query.name, 25-query.group.length-1)}`, [waGrpManager.info.wid._serialized])
 								.then(waGrp => waGrpManager.getChatById(waGrp.gid._serialized))
 								.then(waChat => {
 									if (waChat.isGroup) {
@@ -76,13 +76,23 @@ router.put("/signup", async (req, res) => {
 				})
 		}
 		res.status(200)
-		res.respond("Student Registered")
+		//res.respondWith("Student Registered")
 	}
 	catch (err) {   // @TODO: manejar tanto error de registro en bd y manejar en caso de usuario existente
 		console.error(`SPVGA: fallo en registro de grupo en bd: ${err}`)
 		res.status(500)
-		res.respond(`SPVGA: fallo en registro de grupo en bd: ${err}`)
+		//res.respondWith(`SPVGA: fallo en registro de grupo en bd: ${err}`)
 	}
 })
+
+let abbreviate = (str, maxlength) =>
+	str.length<=maxlength
+		? str
+		: str.split(" ")
+			 .filter((w,i, strA) => w.length>4 || (i===0 || i===strA.length-1))
+			 .map(w => w.substr(0,1))
+			 .toString()
+			 .replace(/,/g,"")
+			 .substr(0,maxlength)
 
 module.exports = router;
