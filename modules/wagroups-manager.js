@@ -10,7 +10,8 @@ const info = data => console.info(`${TAG}: ${data}`)
 const assert = (condition, data) => console.assert(condition, `${TAG}: ${data}`)
 
 let sessionCfg = JSON.parse(process.env.WW_SESSION || null);
-info(sessionCfg?"":"Scan Next QR")
+if (!sessionCfg)
+	info("Scan Next QR")
 
 const client = new Client({ puppeteer: { args: [ '--no-sandbox', ]}, session: sessionCfg });
 
