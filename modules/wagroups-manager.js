@@ -10,12 +10,9 @@ const info = data => console.info(`${TAG}: ${data}`)
 const assert = (condition, data) => console.assert(condition, `${TAG}: ${data}`)
 
 let sessionCfg = JSON.parse(process.env.WW_SESSION || null);
-assert(sessionCfg, "Scan Next QR")
+info(sessionCfg?"":"Scan Next QR")
 
-const client = new Client({ puppeteer: { args: [ '--no-sandbox', ], }, session: sessionCfg });
-
-
-client.initialize();
+const client = new Client({ puppeteer: { args: [ '--no-sandbox', ]}, session: sessionCfg });
 
 client.on('qr', qr =>
 	qrcode.generate(qr, {small: true}));
@@ -26,8 +23,10 @@ client.on('authenticated', session => {
 	sessionCfg=session;
 });
 
-client.on('auth_failure', err =>
-	error('AUTHENTICATION FAILURE'+err) );
+client.on('auth_failure', err => {
+	sessionCfg = null;
+	error('AUTHENTICATION FAILURE'+err)
+});
 
 client.on('ready', _ =>
 	info('READY') );
@@ -36,6 +35,9 @@ client.on('disconnected', reason =>
 	info("LOG OUT "+reason));
 
 client.on('message', answerer);
+
+client.initialize()
+	.catch(error)
 
 function answerer(msg) {
 	let msgText = String(msg.body.toLowerCase())

@@ -1,11 +1,10 @@
-let express = require('express');
-let router = express.Router();
-let waGrpManager = require('../modules/wagroups-manager');
-let dbManager = require('../modules/db-managment')
-const {json} = require("express");
-let classesColl = dbManager.db("SPVGA").collection("classes")
+const express = require('express');
+const router = express.Router();
+const waGrpManager = require('../modules/wagroups-manager');
+const dbManager = require('../modules/db-managment')
+const classesColl = dbManager.db("SPVGA").collection("classes")
 
-/* GET home page. */
+
 router.get('/', (req, res) => {
 	res.render('index', { title: 'Express' });
 });
@@ -15,10 +14,7 @@ router.get('/hola', (req, res) => {
 	res.render('index', { title: 'Hola Gustavo' });
 });
 
-
 router.put("/signup", async (req, res) => {
-	//console.log(JSON.stringify(req.body, null, 4))
-
 	try {
 		for (let classData of req.body.class) {
 			let query = {
@@ -27,11 +23,9 @@ router.put("/signup", async (req, res) => {
 				career:     req.body.career,
 				major:      req.body.major,
 				period:     req.body.period,
-				group:      classData.classgroup,
-				name:       classData.classname
+				group:      classData.group,
+				name:       classData.name
 			}
-
-			console.log("Next Group: "+JSON.stringify(query, null, 4))
 
 			await classesColl.findOne(query, {projection: {_id: 1, _idwa: 1}})
 				.then(classRes => new Promise((resolve, reject) => {
@@ -45,7 +39,7 @@ router.put("/signup", async (req, res) => {
 								.then(waChat => {
 									if (waChat.isGroup) {
 										// Sets subject
-										waChat.setDescription(`*Profesor*: ${classData.classteacher}\n*Horario:*\n${classData.classschedule}`)
+										waChat.setDescription(`*Profesor*: ${classData.teacher}\n*Horario:*\n${classData.schedule}`)
 										// Register WhatsApp Group's id
 										query._idwa = waChat.id._serialized
 										classesColl.insertOne(query, error => {
@@ -85,7 +79,7 @@ router.put("/signup", async (req, res) => {
 	}
 })
 
-let abbreviate = (str, maxlength) =>
+const abbreviate = (str, maxlength) =>
 	str.length<=maxlength
 		? str
 		: str.split(" ")

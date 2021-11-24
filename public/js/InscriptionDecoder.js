@@ -31,7 +31,7 @@ function Pdf2TextClass(){
 							let sequences = 0;
 							for( let k = 0; k < textContent.items.length; k++ ){
 								let block = textContent.items[k];
-								if (block.str==="X") {
+								if (block.str==="X" ||  block.str==="X // X") {
 									sequences = 0
 									continue
 								}
