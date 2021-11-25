@@ -195,7 +195,7 @@ const decode = (file) => new Promise((resolve, reject) => {
 					}
 					
 					tmp = data[0]
-					isValidField = !tmp.startsWith("IR")
+					isValidField = !/^[a-z]{2,3} - /i.test(tmp)
 				}
 				data.shift()
 				let tmp = data.shift().replace(" Periodo:", "")
