@@ -49,6 +49,14 @@ body {
     .support{font-size: 2.5rem; margin: 0}
     .text2{font-size: 140%;}
 }
+
+.icons{ font-family: unset; margin-top: 5px; font-size: 12px}
+
+.icon_size{
+    height: 30px;
+}
+
+
 form {
     padding-top: 40px;
     position: relative;
@@ -91,31 +99,22 @@ form {
 }
 
 .sidebar { background: rgb(0,96,162);
-    background: linear-gradient(0deg, rgba(0,96,162,1) 0%, rgba(0,112,255,1) 25%); }
+    background: linear-gradient(180deg, rgba(0,96,162,1) 0%, rgba(0,112,255,1) 25%); }
 
-span{
-    position: relative;
-    vertical-align: middle;
-    top: 20%;
-}
-div p{
-    text-align: center;
-}
 
 .title {
-    font-family: Affirmative;
+    font-family: Affirmative, serif;
     font-size: 65px;
     margin-bottom: 1px;
 }
 .subtitle{
-    font-family: Roboto;
+    font-family: Roboto, serif;
     font-size: 18px;
     text-shadow:  0 0 30px #002d70;
 }
 
-input{
-    opacity: .7;
-}
+input
+    { opacity: 0.85; }
 
 .img2
     { object-fit: contain; transform: scaleX(-1) }
@@ -201,12 +200,6 @@ input{
     z-index: 5;
 }
 
-.container-all:target{
-    background: rgba(0,0,0,0.8);
-    visibility: visible;
-    opacity: 1;
-}
-
 .popup{
     width: 100%;
     max-width: 800px;
@@ -224,6 +217,13 @@ input{
     background-size: cover;
     background-position: center;
     border-top-left-radius: 10%; border-bottom-left-radius: 10%;
+}
+
+.success .imgpop{
+    background-image: url("../img/dlg-success.jpg");
+}
+.error .imgpop {
+    background-image: url("../img/dlg-error.jpg");
 }
 
 .container-text {
@@ -254,8 +254,6 @@ input{
     top: 20%;
     left: 50%;
     transform: translate(-50%,-50%);
-    background-color: #1b51a1!important;
-    color: white;
 }
 
 @media screen and (max-width: 900px){

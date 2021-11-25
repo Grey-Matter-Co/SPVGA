@@ -56,7 +56,7 @@ const RESCODE = {
 
 
 router.get('/', (req, res) => {
-	res.render('index', { title: 'Express' });
+	res.render('index', { title: 'SPVGA' });
 });
 
 router.get('/hola', (req, res) => {
@@ -109,14 +109,10 @@ router.put("/signup", async (req, res) => {
 					let isParticipant = waChat.participants
 						.some(participant => participant.id._serialized === phoneId._serialized)
 
-					return !isParticipant
-						? waChat.addParticipants([phoneId._serialized])
-						: Promise.reject("phone already exists")
-				})
-				.then(grpInfo => {
-					console.log(`resultado ${JSON.stringify(grpInfo, null, 4)}`)
-					// @TODO handle error if user wasn't registered
-					grpRegistered++;
+					if (!isParticipant) {
+						grpRegistered++;
+						await waChat.addParticipants([phoneId._serialized])
+					}
 				})
 		}
 		let resStruct = grpRegistered===req.body.class.length
@@ -125,11 +121,13 @@ router.put("/signup", async (req, res) => {
 				? RESCODE.SUCCESS.REGISTERED_PARTIAL(req.body.class.length, grpRegistered)
 				: RESCODE.ERROR.USR_ALREADY_REGISTERED
 
-		res.status(resStruct.code).respondWith(resStruct)
+		res.status(resStruct.code)
+			.type('application/json')
+			.send(resStruct)
 
 		//res.respondWith("Student Registered")
 	}
-	catch (err) {   // @TODO: manejar tanto error de registro en bd y manejar en caso de usuario existente
+	catch (err) {
 		console.error(`SPVGA-ERROR: ${err}`)
 		let resStruct = err=== RESCODE.ERROR.USR_ALREADY_REGISTERED
 							? RESCODE.ERROR.USR_ALREADY_REGISTERED
@@ -140,7 +138,9 @@ router.put("/signup", async (req, res) => {
 						: err=== RESCODE.ERROR.DB_FAILED_REQUEST
 							? RESCODE.ERROR.DB_FAILED_REQUEST
 							: err
-		res.status(resStruct.code?resStruct.code:500).respondWith(resStruct)
+		res.status(resStruct.code?resStruct.code:500)
+			.type('application/json')
+			.send(resStruct)
 	}
 })
 

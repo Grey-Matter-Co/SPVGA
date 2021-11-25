@@ -42,7 +42,7 @@ client.initialize()
 
 function answerer(msg) {
 	let msgText = String(msg.body.toLowerCase())
-	msg.reply(MessagesAdapter.findAnswer(msgText))
+	//msg.reply(MessagesAdapter.findAnswer(msgText))
 }
 
 module.exports = client

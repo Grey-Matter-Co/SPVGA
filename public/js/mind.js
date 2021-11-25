@@ -2,6 +2,8 @@ const rgxTxt = /[0-9a-z]/i
 const url = "/signup"
 let now = new Date()
 const periodBreaker = new Date(`${now.getFullYear()}-06-23 00:00:00`)
+let loader = document.querySelector('#loader')
+let dialog =document.querySelector('#dialog')
 
 async function signup(form) {
 	form.disabled = true
@@ -11,13 +13,11 @@ async function signup(form) {
 
 	decode(form.inscription.files[0])
 		.then(inscription => {
-
-			// @TODO chec conditio negattion
 			if (!name.toUpperCase().split(" ").every(aElem => inscription.student.name.split(" ").includes(aElem)))
-				return Promise.reject(`El comprobante no corresponde a ${name}. Por favor, utiliza un comprobante a tu nombre`)
+				return Promise.reject({code: 417, name: "usr_dif_name"})
 			now = new Date()
 			if (parseInt(inscription.period.substr(0,4)) !== now.getFullYear()+(now<periodBreaker?0:1) || inscription.period.substr(-1)!==(now<periodBreaker?"2":"1"))
-				return Promise.reject("El comprobante no corresponde al periodo en curso")
+				return Promise.reject({code: 410, name: "usr_outdate"})
 
 			inscription.student.phone = phone
 			inscription.student.email = email
@@ -25,7 +25,7 @@ async function signup(form) {
 			console.log(JSON.stringify(inscription, null, 4))
 
 			// Opciones por defecto estan marcadas con un *
-			fetch(url, {
+			return fetch(url, {
 				method: 'PUT', // *GET, POST, PUT, DELETE, etc.
 				mode: 'cors', // no-cors, *cors, same-origin
 				cache: 'default', // *default, no-cache, reload, force-cache, only-if-cached
@@ -38,22 +38,67 @@ async function signup(form) {
 				referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
 				body: JSON.stringify(inscription) // body data type must match "Content-Type" header
 			})
-			.then(response => response.json())// parses JSON response into native JavaScript objects
-			.then( console.log )
+			.then(response => {
+				return response.status < 300
+					? response.json()
+					: Promise.reject(response.json())
+			})// parses JSON response into native JavaScript object
+			.then(resJson => {
+				console.log("Recibiendo Success "+JSON.stringify(resJson,null,4))
+
+				dialog.classList.remove('error')
+				dialog.classList.add('success')
+				dialog.querySelector('h1').innerText = '¡Registro concluido!'
+				dialog.querySelector('p').innerText = (resJson.code === 201)
+					? `Se ha agregado a ${resJson.grps_registered}/${resJson.total}\nVe a Whatsapp y revisa que grupos se han agregado correctamente.`
+					: 'Ve a Whatsapp y revisa que todos los grupos se hayan agregado correctamente.'
+			})
 
 		})
+		.then( txt => {
+			console.log("Result"+JSON.stringify(txt, null, 4))
+		})
 		.catch(err => {
-			alert(err)
+			console.log("Recibiendo error")
+			dialog.classList.remove('success')
+			dialog.classList.add('error')
+			dialog.querySelector('h1').innerText = '¡Vaya.. Algo salió mal!'
+			switch (err.code) {
+				case 404:	// usr_not_found
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl número no se encuentra registrado en Whatsapp `
+					break
+				case 406:	//	usr_already_registered
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl número ya se encuentra registrado en los grupos de cada asignatura.`
+					break
+				case 409:	//
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl archivo no corresponde a un Comprobante de inscripción del IPN.`
+					break
+				case 410:	//
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde al periodo en curso`
+					break
+				case 417:	//
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde a ${name}. Por favor, utiliza un comprobante a tu nombre`
+					break
+				case 502: 	// db_failed_request
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nHubo con problema con la base de datos`
+					break
+				case 503:	// wa_failed_grp_creation
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nSe ha superado un límite de creacion de grupos. \n Por favor, intenta mañana`
+					break
+			}
 			form.inscription.value = ""
 		})
 		.finally(_ => {
-			form.disabled = false
+			loader.classList.add('d-none')	// Quitar la pantalla de carga
+			dialog.classList.remove('d-none')	// Muestra ventana de dialogo
 		})
 }
 
 document.forms[0].onsubmit = ev => {
 	ev.preventDefault();
+	loader.classList.add('d-none')
 	signup(ev.target)
+		.then(_ => loader.classList.remove('d-none'))
 }
 
 document.forms[0].addEventListener('keyup', (ev) => {
@@ -72,6 +117,10 @@ document.forms[0].addEventListener('keyup', (ev) => {
 
 	if (!form.checkValidity() && isNotEmpty && isNotFillingOptionalInp)
 		form.reportValidity()
+})
+
+document.querySelector('#close-dlg').addEventListener('click', ev => {
+	dialog.classList.add('d-none')	// Oculta ventana de dialogo
 })
 
 document.querySelector("[type='file']").addEventListener('change', ev =>
@@ -109,7 +158,8 @@ const decode = (file) => new Promise((resolve, reject) => {
 				.filter(elem => elem)			    // Removes any empty field
 			
 			if (data[0] !== "INSTITUTO POLITECNICO NACIONAL")
-				reject("El archivo no corresponde a un Comprobante de inscripción del IPN")
+				// TODO HANDLE
+				reject({code:409, name: 'usr_not_file'})
 			else {
 				inscriptionData.institute = data.shift()
 				inscriptionData.school = data.shift()
