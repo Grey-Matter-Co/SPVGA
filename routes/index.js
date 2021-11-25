@@ -4,7 +4,7 @@ const waGrpManager = require('../modules/wagroups-manager');
 const dbManager = require('../modules/db-managment')
 const classesColl = dbManager.db("SPVGA").collection("classes")
 const RESCODE = {
-	SUCESS: {
+	SUCCESS: {
 		// @TODO implement
 		// description: student was registered in all wa-groups
 		REGISTERED_FULL: {
@@ -120,9 +120,9 @@ router.put("/signup", async (req, res) => {
 				})
 		}
 		let resStruct = grpRegistered===req.body.class.length
-			? RESCODE.SUCESS.REGISTERED_FULL
+			? RESCODE.SUCCESS.REGISTERED_FULL
 			: grpRegistered>=0
-				? RESCODE.SUCESS.REGISTERED_PARTIAL(req.body.class.length, grpRegistered)
+				? RESCODE.SUCCESS.REGISTERED_PARTIAL(req.body.class.length, grpRegistered)
 				: RESCODE.ERROR.USR_ALREADY_REGISTERED
 
 		res.status(resStruct.code).respondWith(resStruct)
