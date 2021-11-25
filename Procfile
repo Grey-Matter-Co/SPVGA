@@ -1,2 +1,2 @@
 worker: npm start
-web: nzpm start
+web: npm start
