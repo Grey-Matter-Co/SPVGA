@@ -76,7 +76,7 @@ form {
 }
 
 .formulario {
-    background-image: url("/img/spvga.png"), linear-gradient(0deg, rgba(208,239,255,1) 0%, rgba(255,255,255,1) 66%);
+    background-image: url("../img/spvga.png"), linear-gradient(0deg, rgba(208,239,255,1) 0%, rgba(255,255,255,1) 66%);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 50%, cover;
@@ -196,8 +196,7 @@ input{
     height: 100%;
     padding: 40px;
     position: fixed;
-    visibility: hidden;
-    opacity: 0;
+    background: rgba(0,0,0,0.8);
     transition: all 600ms;
     z-index: 5;
 }
@@ -222,7 +221,6 @@ input{
 
 .imgpop{
     width: 40%;
-    background-image: url("/img/265015.jpg");
     background-size: cover;
     background-position: center;
     border-top-left-radius: 10%; border-bottom-left-radius: 10%;
