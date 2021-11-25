@@ -102,7 +102,7 @@ const decode = (file) => new Promise((resolve, reject) => {
 		let arrayBuffer = this.result
 		let inscriptionData = {student: {}, class: []}
 		
-		new Pdf2TextClass().pdfToText(arrayBuffer, ()=>{}, text => {
+		new Pdf2TextClass().pdfToText(arrayBuffer, ()=>{}, (text) => {
 			let data = text
 				.split(new Pdf2TextClass().spliter) // Splits using the Inscription Decoder's spliter
 				.map(elem => elem.rmLateralSpace())	// Trims beginning and ending space

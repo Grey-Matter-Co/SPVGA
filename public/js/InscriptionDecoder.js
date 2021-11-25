@@ -72,7 +72,7 @@ function Pdf2TextClass(){
 								let num_pages = Object.keys(layers).length;
 								for( let j = 1; j <= num_pages; j++)
 									full_text += layers[j] ;
-								callbackAllDone(full_text);
+								callbackAllDone(full_text, num_pages);
 							}, 1000);
 						}
 					}); // end  of page.getTextContent().then
