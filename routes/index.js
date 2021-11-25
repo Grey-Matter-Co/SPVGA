@@ -105,19 +105,24 @@ router.put("/signup", async (req, res) => {
 				.then(async waChat => {
 					// @TODO handle error phoneId wasn't found
 					let phoneId = await waGrpManager.getNumberId("521"+req.body.student.phone)
-
-					let isParticipant = waChat.participants
-						.some(participant => participant.id._serialized === phoneId._serialized)
-
-					if (!isParticipant) {
-						grpRegistered++;
-						await waChat.addParticipants([phoneId._serialized])
+					
+					if (!phoneId)
+						return Promise.reject(RESCODE.ERROR.USR_NOT_FOUND)
+					else {
+						let isParticipant = waChat.participants
+							.some(participant => participant.id._serialized === phoneId._serialized)
+	
+						if (!isParticipant) {
+							grpRegistered++;
+							await waChat.addParticipants([phoneId._serialized])
+						}
 					}
+
 				})
 		}
 		let resStruct = grpRegistered===req.body.class.length
 			? RESCODE.SUCCESS.REGISTERED_FULL
-			: grpRegistered>=0
+			: grpRegistered>0
 				? RESCODE.SUCCESS.REGISTERED_PARTIAL(req.body.class.length, grpRegistered)
 				: RESCODE.ERROR.USR_ALREADY_REGISTERED
 

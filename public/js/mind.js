@@ -38,20 +38,20 @@ async function signup(form) {
 				referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
 				body: JSON.stringify(inscription) // body data type must match "Content-Type" header
 			})
-			.then(response => {
-				return response.status < 300
-					? response.json()
-					: Promise.reject(response.json())
-			})// parses JSON response into native JavaScript object
+			.then(response => response.json())// parses JSON response into native JavaScript object
 			.then(resJson => {
-				console.log("Recibiendo Success "+JSON.stringify(resJson,null,4))
-
-				dialog.classList.remove('error')
-				dialog.classList.add('success')
-				dialog.querySelector('h1').innerText = '¡Registro concluido!'
-				dialog.querySelector('p').innerText = (resJson.code === 201)
-					? `Se ha agregado a ${resJson.grps_registered}/${resJson.total}\nVe a Whatsapp y revisa que grupos se han agregado correctamente.`
-					: 'Ve a Whatsapp y revisa que todos los grupos se hayan agregado correctamente.'
+				if (resJson.code>=300)
+					return Promise.reject(resJson)
+				else {
+					console.log("Recibiendo Success "+JSON.stringify(resJson,null,4))
+	
+					dialog.classList.remove('error')
+					dialog.classList.add('success')
+					dialog.querySelector('h1').innerText = '¡Registro concluido!'
+					dialog.querySelector('p').innerText = (resJson.code === 201)
+						? `Se ha agregado a ${resJson.grps_registered}/${resJson.total}\nVe a Whatsapp y revisa que grupos se han agregado correctamente.`
+						: 'Ve a Whatsapp y revisa que todos los grupos se hayan agregado correctamente.'
+				}
 			})
 
 		})
