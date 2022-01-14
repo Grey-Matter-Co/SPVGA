@@ -24,7 +24,7 @@ client.on('qr', (qr) => {
 	qrcode.generate(qr, {small: true});
 });
 
-client.on('authenticated', _ => {
+client.on('authenticated', session => {
 	logger.info('AUTHENTICATED');
 	if (!process.env.WW_SESSION)
 		logger.trace("WW_SESSION="+JSON.stringify(session))
