@@ -78,7 +78,7 @@ async function signup(form) {
 					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl archivo no corresponde a un Comprobante de inscripción del IPN.`
 					break
 				case 410:	//
-					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde al periodo en curso ${currentPeriod.year}-${currentPeriod.period}`
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde al periodo en curso \n${currentPeriod.year}-${currentPeriod.period}`
 					break
 				case 417:	//
 					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde a ${name}. Por favor, utiliza un comprobante a tu nombre`
