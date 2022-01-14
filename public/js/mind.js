@@ -15,6 +15,7 @@ async function signup(form) {
 		phone = form.phone.value.rmLateralSpace(),
 		email = form.email.value.rmLateralSpace()
 
+
 	decode(form.inscription.files[0])
 		.then(inscription => {
 			if (!name.toUpperCase().split(" ").every(aElem => inscription.student.name.split(" ").includes(aElem)))
@@ -153,64 +154,65 @@ const decode = (file) => new Promise((resolve, reject) => {
 
 	if (file.name.toLowerCase().match(/\w+$/)[0] !== 'pdf')
 		reject({code:409, name: 'usr_not_file'})
+	else {
+		let reader = new FileReader();
+		reader.onload = function() {
+			let arrayBuffer = this.result
+			let inscriptionData = {student: {}, class: []}
 
-	let reader = new FileReader();
-	reader.onload = function() {
-		let arrayBuffer = this.result
-		let inscriptionData = {student: {}, class: []}
-		
-		new Pdf2TextClass().pdfToText(arrayBuffer, ()=>{}, (text) => {
-			let data = text
-				.split(new Pdf2TextClass().spliter) // Splits using the Inscription Decoder's spliter
-				.map(elem => elem.rmLateralSpace())	// Trims beginning and ending space
-				.filter(elem => elem)			    // Removes any empty field
-			
-			if (data[0] !== "INSTITUTO POLITECNICO NACIONAL")
-				// TODO HANDLE
-				reject({code:409, name: 'usr_not_file'})
-			else {
-				inscriptionData.institute = data.shift()
-				inscriptionData.school = data.shift()
-				while (data.shift() !== "Nombre:") {}
-				inscriptionData.student.id = data.shift()
-				while (data.shift() !== "Licenciatura:") {}
-				inscriptionData.career = data.shift()
-				while (data.shift() !== "Especialidad") {}
-				inscriptionData.major = data.shift()
-				inscriptionData.student.name = data.shift()
-				while (data.shift() !== "Salón") { }
+			new Pdf2TextClass().pdfToText(arrayBuffer, ()=>{}, (text) => {
+				let data = text
+					.split(new Pdf2TextClass().spliter) // Splits using the Inscription Decoder's spliter
+					.map(elem => elem.rmLateralSpace())	// Trims beginning and ending space
+					.filter(elem => elem)			    // Removes any empty field
 
-				for (let isValidField = true, i=0; isValidField; i++) {
-					let classGroup	= data.shift(),
-						className	 = data.shift(),
-						classTeacher	= data.shift(),
-						classSchedule = "",
-						isSchedule	= true,
-						tmp
-					
-					while (isSchedule) {
+				if (data[0] !== "INSTITUTO POLITECNICO NACIONAL")
+					// TODO HANDLE
+					reject({code:409, name: 'usr_not_file'})
+				else {
+					inscriptionData.institute = data.shift()
+					inscriptionData.school = data.shift()
+					while (data.shift() !== "Nombre:") {}
+					inscriptionData.student.id = data.shift()
+					while (data.shift() !== "Licenciatura:") {}
+					inscriptionData.career = data.shift()
+					while (data.shift() !== "Especialidad") {}
+					inscriptionData.major = data.shift()
+					inscriptionData.student.name = data.shift()
+					while (data.shift() !== "Salón") { }
+
+					for (let isValidField = true, i=0; isValidField; i++) {
+						let classGroup	= data.shift(),
+							className	 = data.shift(),
+							classTeacher	= data.shift(),
+							classSchedule = "",
+							isSchedule	= true,
+							tmp
+
+						while (isSchedule) {
+							tmp = data[0]
+							isSchedule = /^[\d]{2}:[\d]{2} -[\d]{2}:[\d]{2}/.test(tmp)//=>XX:XX -XX:XX
+							if (isSchedule)
+								classSchedule += data.shift()+(tmp.includes("//")?" ":"\n")
+						}
+
+						inscriptionData.class[i] = {
+							group: classGroup,
+							name: className,
+							teacher: classTeacher,
+							schedule: classSchedule
+						}
+
 						tmp = data[0]
-						isSchedule = /^[\d]{2}:[\d]{2} -[\d]{2}:[\d]{2}/.test(tmp)//=>XX:XX -XX:XX
-						if (isSchedule)
-							classSchedule += data.shift()+(tmp.includes("//")?" ":"\n")
+						isValidField = !/^[a-z]{2,3} - /i.test(tmp)
 					}
-					
-					inscriptionData.class[i] = {
-						group: classGroup,
-						name: className,
-						teacher: classTeacher,
-						schedule: classSchedule
-					}
-					
-					tmp = data[0]
-					isValidField = !/^[a-z]{2,3} - /i.test(tmp)
+					data.shift()
+					let tmp = data.shift().replace(" Periodo:", "")
+					inscriptionData.period = tmp.replace(/\d$/, "-"+tmp.at(-1))
 				}
-				data.shift()
-				let tmp = data.shift().replace(" Periodo:", "")
-				inscriptionData.period = tmp.replace(/\d$/, "-"+tmp.at(-1))
-			}
-			resolve(inscriptionData)
-		})
+				resolve(inscriptionData)
+			})
+		}
+		reader.readAsArrayBuffer(file);
 	}
-	reader.readAsArrayBuffer(file);
 })
