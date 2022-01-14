@@ -83,9 +83,8 @@ router.put("/signup", async (req, res) => {
 								.then(waGrp => waGrpManager.getChatById(waGrp.gid._serialized))
 								.then(waChat => {
 									if (waChat.isGroup) {
-										console.log('Grupo existente')
 										// Sets subject
-										waChat.setDescription(`*Profesor*: ${classData.teacher}\n*Horario:*\n${classData.schedule}`)
+										waChat.setDescription(`*Materia*: ${query.name}\n*Profesor*: ${classData.teacher}\n*Horario:*\n${classData.schedule}`)
 										// Register WhatsApp Group's id
 										query._idwa = waChat.id._serialized
 										classesColl.insertOne(query, error => {
