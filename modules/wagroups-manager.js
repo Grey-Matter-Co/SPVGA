@@ -44,7 +44,12 @@ client.on('disconnected', (reason) => {
 	logger.fatal('DISCONNECTED', reason);
 });
 
-client.on('message', answerer);
+client.on('message',async msg => {
+	if (!(await msg.getChat()).isGroup) {
+		logger.debug(`msg ${msg}`)
+		answerer(msg)
+	}
+});
 
 function answerer(msg) {
 	let msgText = String(msg.body.toLowerCase())

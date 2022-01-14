@@ -1,5 +1,6 @@
 const fs = require("fs");
-knowledge = require('../knowledge.json')
+knowledgePath = '../knowledge.json'
+knowledge = require(knowledgePath)
 
 /**
  * @param {String} str1 First string to compare
@@ -76,7 +77,7 @@ module.exports = {
 
 
         knowledge["☺_Sin responder_☺"].push(question)
-        fs.writeFile("source/knowledge.json", JSON.stringify(knowledge, null, 2), err => {
+        fs.writeFile(knowledgePath, JSON.stringify(knowledge, null, 2), err => {
             if (err) {
                 console.error("Problemas al añadir nuevas preguntas a la base", err);
                 return
