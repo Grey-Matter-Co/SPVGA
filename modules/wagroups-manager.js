@@ -2,7 +2,7 @@ require('dotenv').config();
 const logger = require("log4js")
 	.configure({
 		appenders: { WWebJS: { type: "stdout" } },
-		categories: { default: { appenders: ["WWebJS"], level: "debug" } }
+		categories: { default: { appenders: ["WWebJS"], level: "ALL" } }
 	})
 	.getLogger("WWebJS");
 
