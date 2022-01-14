@@ -98,8 +98,9 @@ form {
     transform: translate(-50%, -50%)
 }
 
-.sidebar { background: rgb(0,96,162);
-    background: linear-gradient(180deg, rgba(0,96,162,1) 0%, rgba(0,112,255,1) 25%); }
+.sidebar {
+    background-color: #4a92ff;
+}
 
 
 .title {
