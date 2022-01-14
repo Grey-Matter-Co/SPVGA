@@ -1,23 +1,20 @@
 require('dotenv').config();
-const APP_NAME = process.env.WAWEB_SESSIONID
-
 const logger = require("log4js")
 	.configure({
-		appenders: { SPVGA: { type: "stdout" } },
-		categories: { default: { appenders: [APP_NAME], level: "debug" } }
+		appenders: { WWebJS: { type: "stdout" } },
+		categories: { default: { appenders: ["WWebJS"], level: "debug" } }
 	})
-	.getLogger(APP_NAME);
+	.getLogger("WWebJS");
 
-
-const fs = require("fs")
 const qrcode = require('qrcode-terminal');
 const { Client } = require('whatsapp-web.js');
 const MessagesAdapter = require('./MessagesAdapter')
 
-if (!(fs.existsSync("./WWebJS") && fs.existsSync("./WWebJS/session-"+APP_NAME)) )
+let sessionCfg = JSON.parse(process.env.WW_SESSION || null);
+if (!sessionCfg)
 	logger.warn("Scan Next QR codes")
 
-const client = new Client({ puppeteer: { args: ['--no-sandbox']}, clientId: APP_NAME });
+const client = new Client({ puppeteer: { args: [ '--no-sandbox', ]}, session: sessionCfg });
 
 (async _ => {
 	await client.initialize();
@@ -29,6 +26,10 @@ client.on('qr', (qr) => {
 
 client.on('authenticated', _ => {
 	logger.info('AUTHENTICATED');
+	if (!process.env.WW_SESSION)
+		logger.trace("WW_SESSION="+JSON.stringify(session))
+
+	process.env.WW_SESSION = session
 });
 
 // Fired if session restore was unsuccessful

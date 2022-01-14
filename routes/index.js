@@ -5,13 +5,11 @@ const dbManager = require('../modules/db-managment')
 const classesColl = dbManager.db("SPVGA").collection("classes")
 const RESCODE = {
 	SUCCESS: {
-		// @TODO implement
 		// description: student was registered in all wa-groups
 		REGISTERED_FULL: {
 			code: 200,
 			name: "registered_full"
 		},
-		// @TODO implement
 		/**
 		 * @description student was registered in some wa-groups
 		 * @param total {Number}
@@ -28,13 +26,11 @@ const RESCODE = {
 	},
 
 	ERROR: {
-		// @TODO implement
 		// description: couldn't register user 'cause is already registered in all wa-groups
 		USR_ALREADY_REGISTERED: {
 			code: 406,
 			name: "usr_already_registered"
 		},
-		// @TODO implement
 		// description: couldn't found user. maybe it doesn't exits
 		USR_NOT_FOUND: {
 			code: 404,
@@ -45,7 +41,6 @@ const RESCODE = {
 			code: 502,
 			name: "db_failed_request"
 		},
-		// @TODO implement
 		// description: WhatsApp don't allow create more groups
 		WA_FAILED_GRP_CREATION: {
 			code: 503,
@@ -79,7 +74,6 @@ router.put("/signup", async (req, res) => {
 			}
 
 			await classesColl.findOne(query, {projection: {_id: 1, _idwa: 1}})
-				// @TODO handle error on group creation
 				.then(classRes => new Promise((resolve, reject) => {
 						if (classRes)
 							waGrpManager.getChatById(classRes._idwa)
@@ -89,6 +83,7 @@ router.put("/signup", async (req, res) => {
 								.then(waGrp => waGrpManager.getChatById(waGrp.gid._serialized))
 								.then(waChat => {
 									if (waChat.isGroup) {
+										console.log('Grupo existente')
 										// Sets subject
 										waChat.setDescription(`*Profesor*: ${classData.teacher}\n*Horario:*\n${classData.schedule}`)
 										// Register WhatsApp Group's id
@@ -103,7 +98,6 @@ router.put("/signup", async (req, res) => {
 					})
 				)
 				.then(async waChat => {
-					// @TODO handle error phoneId wasn't found
 					let phoneId = await waGrpManager.getNumberId("521"+req.body.student.phone)
 					
 					if (!phoneId)
