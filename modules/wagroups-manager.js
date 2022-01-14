@@ -27,7 +27,7 @@ client.on('qr', (qr) => {
 client.on('authenticated', session => {
 	logger.info('AUTHENTICATED');
 	if (!process.env.WW_SESSION)
-		logger.trace("WW_SESSION="+JSON.stringify(session))
+		logger.warn("WW_SESSION="+JSON.stringify(session))
 
 	process.env.WW_SESSION = session
 });
