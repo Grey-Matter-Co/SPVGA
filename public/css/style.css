@@ -92,14 +92,14 @@ form {
 
 .img1{
     position: relative;
-    width: 60%;
+    width: 100%;
     top: 35%;
     left: 50%;
     transform: translate(-50%, -50%)
 }
 
 .sidebar {
-    background-color: #4a92ff;
+    background-color: #2b7fff;
 }
 
 
