@@ -75,7 +75,7 @@ async function signup(form) {
 					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl número ya se encuentra registrado en los grupos de cada asignatura.`
 					break
 				case 409:	//
-					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl archivo no corresponde a un Comprobante de inscripción del IPN.`
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl archivo no corresponde a un archivo PDF de Comprobante de inscripción del IPN.`
 					break
 				case 410:	//
 					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde al periodo en curso \n${currentPeriod.year}-${currentPeriod.period}`
@@ -150,6 +150,10 @@ String.prototype.rmTildes = function () {
  * @returns {Promise<JSON>} Inscription structure which contains student, institute, school, career, major, period and classes
  */
 const decode = (file) => new Promise((resolve, reject) => {
+
+	if (file.name.toLowerCase().match(/\w+$/)[0] !== 'pdf')
+		reject({code:409, name: 'usr_not_file'})
+
 	let reader = new FileReader();
 	reader.onload = function() {
 		let arrayBuffer = this.result
