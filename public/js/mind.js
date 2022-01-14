@@ -64,7 +64,6 @@ async function signup(form) {
 			console.log("Result"+JSON.stringify(txt, null, 4))
 		})
 		.catch(err => {
-			console.log("Recibiendo error")
 			dialog.classList.remove('success')
 			dialog.classList.add('error')
 			dialog.querySelector('h1').innerText = '¡Vaya.. Algo salió mal!'
@@ -167,7 +166,6 @@ const decode = (file) => new Promise((resolve, reject) => {
 					.filter(elem => elem)			    // Removes any empty field
 
 				if (data[0] !== "INSTITUTO POLITECNICO NACIONAL")
-					// TODO HANDLE
 					reject({code:409, name: 'usr_not_file'})
 				else {
 					inscriptionData.institute = data.shift()
