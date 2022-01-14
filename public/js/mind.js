@@ -2,6 +2,10 @@ const rgxTxt = /[0-9a-z]/i
 const url = "/signup"
 let now = new Date()
 const periodBreaker = new Date(`${now.getFullYear()}-06-23 00:00:00`)
+const currentPeriod = {
+	year: now.getFullYear()+(now<periodBreaker?0:1),
+	period: (now<periodBreaker?"2":"1")
+}
 let loader = document.querySelector('#loader')
 let dialog =document.querySelector('#dialog')
 
@@ -16,7 +20,7 @@ async function signup(form) {
 			if (!name.toUpperCase().split(" ").every(aElem => inscription.student.name.split(" ").includes(aElem)))
 				return Promise.reject({code: 417, name: "usr_dif_name"})
 			now = new Date()
-			if (parseInt(inscription.period.substr(0,4)) !== now.getFullYear()+(now<periodBreaker?0:1) || inscription.period.substr(-1)!==(now<periodBreaker?"2":"1"))
+			if (parseInt(inscription.period.substr(0,4)) !== currentPeriod.year || inscription.period.substr(-1)!==currentPeriod.period)
 				return Promise.reject({code: 410, name: "usr_outdate"})
 
 			inscription.student.phone = phone
@@ -74,7 +78,7 @@ async function signup(form) {
 					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl archivo no corresponde a un Comprobante de inscripción del IPN.`
 					break
 				case 410:	//
-					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde al periodo en curso`
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde al periodo en curso ${currentPeriod.year}-${currentPeriod.period}`
 					break
 				case 417:	//
 					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde a ${name}. Por favor, utiliza un comprobante a tu nombre`
