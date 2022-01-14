@@ -95,7 +95,8 @@ form {
     width: 100%;
     top: 35%;
     left: 50%;
-    transform: translate(-50%, -50%)
+    transform: translate(-50%, -50%);
+    background-color: #2b7fff
 }
 
 .sidebar {
