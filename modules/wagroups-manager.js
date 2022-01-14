@@ -1,44 +1,50 @@
 require('dotenv').config();
+const APP_NAME = process.env.WAWEB_SESSIONID
+
+const logger = require("log4js")
+	.configure({
+		appenders: { SPVGA: { type: "stdout" } },
+		categories: { default: { appenders: [APP_NAME], level: "debug" } }
+	})
+	.getLogger(APP_NAME);
+
+
+const fs = require("fs")
 const qrcode = require('qrcode-terminal');
 const { Client } = require('whatsapp-web.js');
 const MessagesAdapter = require('./MessagesAdapter')
 
-const TAG = "WAGroups"
-const log = data => console.log(`${TAG}: ${data}`)
-const error = data => console.error(`${TAG}: ${data}`)
-const info = data => console.info(`${TAG}: ${data}`)
-const assert = (condition, data) => console.assert(condition, `${TAG}: ${data}`)
+if (!(fs.existsSync("./WWebJS") && fs.existsSync("./WWebJS/session-"+APP_NAME)) )
+	logger.warn("Scan Next QR codes")
 
-let sessionCfg = JSON.parse(process.env.WW_SESSION || null);
-if (!sessionCfg)
-	info("Scan Next QR")
+const client = new Client({ puppeteer: { args: ['--no-sandbox']}, clientId: APP_NAME });
 
-const client = new Client({ puppeteer: { args: [ '--no-sandbox', ]}, session: sessionCfg });
+(async _ => {
+	await client.initialize();
+})();
 
-client.on('qr', qr =>
-	qrcode.generate(qr, {small: true}));
-
-client.on('authenticated', session => {
-	info('AUTHENTICATED');
-	assert(process.env.WW_SESSION, "WW_SESSION="+JSON.stringify(session))
-	sessionCfg=session;
+client.on('qr', (qr) => {
+	qrcode.generate(qr, {small: true});
 });
 
-client.on('auth_failure', err => {
-	sessionCfg = null;
-	error('AUTHENTICATION FAILURE'+err)
+client.on('authenticated', _ => {
+	logger.info('AUTHENTICATED');
 });
 
-client.on('ready', _ =>
-	info('READY') );
+// Fired if session restore was unsuccessful
+client.on('auth_failure', (err) => {
+	logger.error('AUTHENTICATION FAILURE', err);
+});
 
-client.on('disconnected', reason =>
-	info("LOG OUT "+reason));
+client.on('ready', _ => {
+	logger.info('READY');
+});
+
+client.on('disconnected', (reason) => {
+	logger.fatal('DISCONNECTED', reason);
+});
 
 client.on('message', answerer);
-
-client.initialize()
-	.catch(error)
 
 function answerer(msg) {
 	let msgText = String(msg.body.toLowerCase())
