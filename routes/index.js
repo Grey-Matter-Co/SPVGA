@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const waGrpManager = require('../modules/wagroups-manager');
+const WhatsappHandler = require('../modules/WhatsappHandler');
+const WhatsappClient = require('../modules/WhatsappClient');
 const dbManager = require('../modules/db-managment')
-const classesColl = dbManager.db("SPVGA").collection("classes")
+const classesColl = dbManager.db(process.env.DB_NAME).collection("classes")
 const RESCODE = {
 	SUCCESS: {
 		// description: student was registered in all wa-groups
@@ -49,14 +50,12 @@ const RESCODE = {
 	}
 }
 
+const waHandler = new WhatsappHandler();
+const waClient = new WhatsappClient(waHandler, true);
+
 
 router.get('/', (req, res) => {
 	res.render('index', { title: 'SPVGA' });
-});
-
-router.get('/hola', (req, res) => {
-	//let usu = res.form.usuario
-	res.render('index', { title: 'Hola Gustavo' });
 });
 
 router.put("/signup", async (req, res) => {
@@ -70,34 +69,32 @@ router.put("/signup", async (req, res) => {
 				major:      req.body.major,
 				period:     req.body.period,
 				group:      classData.group,
-				name:       classData.name
+				teacher:    classData.teacher,
+				schedule:   classData.schedule,
+				name:       classData.name,
 			}
 
 			await classesColl.findOne(query, {projection: {_id: 1, _idwa: 1}})
 				.then(classRes => new Promise((resolve, reject) => {
 						if (classRes)
-							waGrpManager.getChatById(classRes._idwa)
+							waClient.getChatById(classRes._idwa)
 								.then(resolve)
-						else                                                                                                                    //  self-adding at group
-							waGrpManager.createGroup(`${query.group}-${abbreviate(query.name, 25-query.group.length-1)}`, [waGrpManager.info.wid._serialized])
-								.then(waGrp => waGrpManager.getChatById(waGrp.gid._serialized))
+						else
+							waClient.createSchoolarGroup(query.name, classData.teacher, classData.schedule ,`${query.group}-${abbreviate(query.name, 25-query.group.length-1)}`, [waClient.info.wid._serialized], )
 								.then(waChat => {
-									if (waChat.isGroup) {
-										// Sets subject
-										waChat.setDescription(`*Materia*: ${query.name}\n*Profesor*: ${classData.teacher}\n*Horario:*\n${classData.schedule}`)
-										// Register WhatsApp Group's id
-										query._idwa = waChat.id._serialized
-										classesColl.insertOne(query, error => {
-											if (error)
-												reject(RESCODE.ERROR.DB_FAILED_REQUEST)
-											resolve(waChat)
-										})
-									}
+									query._idwa = waChat.id._serialized
+									classesColl.insertOne(query, error => {
+										if (error)
+											reject(RESCODE.ERROR.DB_FAILED_REQUEST)
+										resolve(waChat)
+									})
 								})
+							            
 					})
 				)
 				.then(async waChat => {
-					let phoneId = await waGrpManager.getNumberId("521"+req.body.student.phone)
+					
+					let phoneId = await waClient.validateContact("521"+req.body.student.phone)
 					
 					if (!phoneId)
 						return Promise.reject(RESCODE.ERROR.USR_NOT_FOUND)

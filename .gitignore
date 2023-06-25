@@ -3,4 +3,5 @@ node_modules
 .env
 *.pdf
 /WWebJS/
+.wwebjs*
 /package-lock.json
