@@ -22,7 +22,7 @@ async function signup(form) {
 				return Promise.reject({code: 417, name: "usr_dif_name"})
 			now = new Date()
 			if (parseInt(inscription.period.substr(0,4)) !== currentPeriod.year || inscription.period.substr(-1)!==currentPeriod.period)
-				return Promise.reject({code: 410, name: "usr_outdate"})
+				return Promise.reject({code: 410, name: "usr_outdate", currentPeriod: inscription.period})
 
 			inscription.student.phone = phone
 			inscription.student.email = email
@@ -78,7 +78,7 @@ async function signup(form) {
 					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl archivo no corresponde a un archivo PDF de Comprobante de inscripción del IPN.`
 					break
 				case 410:	//
-					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde al periodo en curso \n${currentPeriod.year}-${currentPeriod.period}`
+					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde al periodo en curso \n${currentPeriod.year}-${currentPeriod.period} \nEl comprobante corresponde al periodo ${err.currentPeriod}`
 					break
 				case 417:	//
 					dialog.querySelector('p').innerText = `Error: ${err.code} \nEl comprobante no corresponde a ${name}. Por favor, utiliza un comprobante a tu nombre`
@@ -89,10 +89,13 @@ async function signup(form) {
 				case 503:	// wa_failed_grp_creation
 					dialog.querySelector('p').innerText = `Error: ${err.code} \nSe ha superado un límite de creacion de grupos. \n Por favor, intenta mañana`
 					break
+				default:
+					console.error(err)
+					dialog.querySelector('p').innerText = `Error: ${err.code} \n${err.name}`
 			}
-			form.inscription.value = ""
 		})
 		.finally(_ => {
+			form.inscription.value = ''
 			loader.classList.add('d-none')	// Quitar la pantalla de carga
 			dialog.classList.remove('d-none')	// Muestra ventana de dialogo
 		})
@@ -190,8 +193,14 @@ const decode = (file) => new Promise((resolve, reject) => {
 						while (isSchedule) {
 							tmp = data[0]
 							isSchedule = /^[\d]{2}:[\d]{2} -[\d]{2}:[\d]{2}/.test(tmp)//=>XX:XX -XX:XX
+							isGroup = /^\d{1,2}[A-Z]{1,2}\d{1,2}$/.test(tmp)
+							isFullName = /^[A-Z ]+$/.test(tmp)
 							if (isSchedule)
 								classSchedule += data.shift()+(tmp.includes("//")?" ":"\n")
+							else if (!isGroup && isFullName) {
+								classTeacher += " "+data.shift()
+								isSchedule = true
+							}
 						}
 
 						inscriptionData.class[i] = {
